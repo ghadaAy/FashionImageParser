@@ -1,21 +1,16 @@
 from logging import raiseExceptions
-from fashion.items import FashionItem
 import scrapy
-import json
-from scrapy.linkextractors import LinkExtractor
-from scrapy.loader.processors import Join, MapCompose, TakeFirst
-from scrapy.pipelines.images import ImagesPipeline
+
 
 class FashionSpidySpider(scrapy.Spider):
     name = 'fashion_spidy'
     allowed_domains = ['bershka.com']
-    start_urls = ['https://www.bershka.com/es/en/women/clothes/jackets-c1010193212.html']
+    start_urls = ['https://www.bershka.com/us/h-woman.html']
    
     
     def parse(self, response):
-        
         try:
-            for link in response.xpath('//a[contains(@href, @class)]/@href'):
+            for link in response.css(".gender-wrapper").css("a").xpath("@href").extract():
                 if 'clothes' in link.get():
                     yield response.follow(link.get(), callback = self.parse_items)
         except:
@@ -32,10 +27,14 @@ class FashionSpidySpider(scrapy.Spider):
             product_color = response.css(".description::text").get()
 
             img_url = response.css("img").xpath('@data-original').extract()
+            img_name_from_url = response.css("img").xpath('@alt').extract()
             img_names = [self._string_manoeuvre(f"{product_name}_{product_color.split(':')[-1]}_{i}") for i in range(len(img_url))]
-
-            for el, name in zip(img_url,img_names):
-                yield {'image_urls': [el],
-                        'image_name': name}  
+            
+            for url, name,name_url  in zip(img_url, img_names, img_name_from_url):
+                if product_name in name_url:
+                    yield {'image_urls': [url],
+                            'image_name': name}  
         except:
             pass
+
+##response.css(".gender-wrapper").css("a").xpath("@href").extract()

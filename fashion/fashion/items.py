@@ -9,8 +9,6 @@ from scrapy import Field
 class FashionItem(scrapy.Item):
     image_name = Field()
     img_url = scrapy.Field()
-# ScrapingList Residential & Yield Estate for sale
-
 
 class ImageItem(scrapy.Item):
     image_urls = scrapy.Field()
