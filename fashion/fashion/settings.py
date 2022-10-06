@@ -26,7 +26,7 @@ ITEM_PIPELINES = {'fashion.pipelines.FashionPipeline': 1}
 
 IMAGES_STORE = 'C:/Users/Hamza/Documents/scraping/fashion/fashion/images'
 
-DOWNLOAD_DELAY = 60
+DOWNLOAD_DELAY = 2
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
 

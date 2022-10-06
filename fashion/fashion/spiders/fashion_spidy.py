@@ -1,4 +1,3 @@
-from gc import callbacks
 from logging import raiseExceptions
 import scrapy
 import os
@@ -9,8 +8,12 @@ class FashionSpidySpider(scrapy.Spider):
     start_urls = ['https://www.bershka.com/es/en/h-woman.html']
     bershka_categories = ['/clothes/','/shoes/','/accessories/']
     base_url = 'https://www.bershka.com/'
+
     @staticmethod
     def test_string_list_intersection(test_list:list, s:str)->bool:
+        """
+        Test if an element from list exists insite a string s
+        """
         for el in test_list:
             if el in s:
                 return True
@@ -30,7 +33,7 @@ class FashionSpidySpider(scrapy.Spider):
         pages_links = response.css("a").xpath("@href").extract()
         for link in pages_links:
             try:
-                if link.startswith('http') and self.test_string_list_intersection(self.bershka_categories, str(link)):
+                if link.startswith('https') and self.test_string_list_intersection(self.bershka_categories, str(link)):
                     yield response.follow(link, callback = self.parse_items)
             except:
                 raiseExceptions("problem with response in category")
@@ -54,4 +57,3 @@ class FashionSpidySpider(scrapy.Spider):
         except:
             raiseExceptions("Error in response for items")
 
-##response.css(".gender-wrapper").css("a").xpath("@href").extract()"""
