@@ -1,20 +1,39 @@
+from gc import callbacks
 from logging import raiseExceptions
 import scrapy
-
+import os
 
 class FashionSpidySpider(scrapy.Spider):
     name = 'fashion_spidy'
     allowed_domains = ['bershka.com']
-    start_urls = ['https://www.bershka.com/us/h-woman.html']
-   
-    
-    def parse(self, response):
+    start_urls = ['https://www.bershka.com/es/en/h-woman.html']
+    bershka_categories = ['/clothes/','/shoes/','/accessories/']
+    base_url = 'https://www.bershka.com/'
+    @staticmethod
+    def test_string_list_intersection(test_list:list, s:str)->bool:
+        for el in test_list:
+            if el in s:
+                return True
+        return False
+
+    def parse(self,response):
         try:
-            for link in response.css(".gender-wrapper").css("a").xpath("@href").extract():
-                if 'clothes' in link.get():
-                    yield response.follow(link.get(), callback = self.parse_items)
+            links = response.css('.sub-menu-item a').xpath('@href').extract()
+            for link in links:
+                if link.startswith('/es') and self.test_string_list_intersection(self.bershka_categories, str(link)):
+                    link = os.path.join(self.base_url,link)
+                    yield response.follow(link, callback = self.parse_one_link)
         except:
-            raiseExceptions("Can't connect")
+            raiseExceptions("problem with response")
+
+    def parse_one_link(self, response):
+        pages_links = response.css("a").xpath("@href").extract()
+        for link in pages_links:
+            try:
+                if link.startswith('http') and self.test_string_list_intersection(self.bershka_categories, str(link)):
+                    yield response.follow(link, callback = self.parse_items)
+            except:
+                raiseExceptions("problem with response in category")
 
     @staticmethod
     def _string_manoeuvre(string:str):
@@ -22,10 +41,8 @@ class FashionSpidySpider(scrapy.Spider):
 
     def parse_items(self, response):
         try:
-            
             product_name = response.css(".product-title::text").get()
             product_color = response.css(".description::text").get()
-
             img_url = response.css("img").xpath('@data-original').extract()
             img_name_from_url = response.css("img").xpath('@alt').extract()
             img_names = [self._string_manoeuvre(f"{product_name}_{product_color.split(':')[-1]}_{i}") for i in range(len(img_url))]
@@ -35,6 +52,6 @@ class FashionSpidySpider(scrapy.Spider):
                     yield {'image_urls': [url],
                             'image_name': name}  
         except:
-            pass
+            raiseExceptions("Error in response for items")
 
-##response.css(".gender-wrapper").css("a").xpath("@href").extract()
+##response.css(".gender-wrapper").css("a").xpath("@href").extract()"""

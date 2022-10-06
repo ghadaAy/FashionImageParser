@@ -2,14 +2,15 @@
 #
 # See documentation in:
 # https://docs.scrapy.org/en/latest/topics/items.html
+from unicodedata import category
 import scrapy
 from scrapy import Field
 
 
 class FashionItem(scrapy.Item):
     image_name = Field()
-    img_url = scrapy.Field()
+    img_url = Field()
 
 class ImageItem(scrapy.Item):
-    image_urls = scrapy.Field()
-    images = scrapy.Field()
+    image_urls = Field()
+    images = Field()
