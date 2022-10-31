@@ -4,7 +4,7 @@ from  concurrent.futures import ThreadPoolExecutor
 
 proxylist = []
 working_proxy_list = []
-with open("proxies.txt",'r') as f:
+with open("proxy_data/proxies.txt",'r') as f:
     proxylist = f.readlines()
 
 def extract_working_proxy(proxy):
